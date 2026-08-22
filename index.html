@@ -2,90 +2,97 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>RSAI Video Generator</title>
+<title>RSAI Shorts Video Generator</title>
 
 <style>
 *{box-sizing:border-box}
 
 body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#080b16;
-  color:white;
+margin:0;
+background:#070914;
+color:white;
+font-family:Arial,sans-serif;
 }
 
 header{
-  text-align:center;
-  padding:25px 15px;
+text-align:center;
+padding:22px;
+background:#0d1122;
 }
 
 h1{
-  color:#00e5ff;
+margin:0;
+color:#00e5ff;
 }
 
 .container{
-  max-width:700px;
-  margin:auto;
-  padding:20px;
+max-width:600px;
+margin:auto;
+padding:18px;
 }
 
 .card{
-  background:#11162a;
-  padding:20px;
-  border-radius:18px;
+background:#11172b;
+padding:20px;
+border-radius:18px;
+}
+
+label{
+display:block;
+margin:12px 0 6px;
+font-weight:bold;
 }
 
 textarea,select{
-  width:100%;
-  margin:8px 0 15px;
-  padding:14px;
-  border-radius:10px;
-  border:1px solid #333b58;
-  background:#080b16;
-  color:white;
-  font-size:16px;
+width:100%;
+padding:13px;
+border-radius:10px;
+border:1px solid #343c5c;
+background:#080b16;
+color:white;
+font-size:16px;
 }
 
 textarea{
-  height:150px;
+height:150px;
 }
 
 button{
-  width:100%;
-  padding:15px;
-  margin-top:10px;
-  border:0;
-  border-radius:12px;
-  background:#008cff;
-  color:white;
-  font-size:17px;
-  font-weight:bold;
+width:100%;
+padding:15px;
+margin-top:12px;
+border:0;
+border-radius:12px;
+background:#008cff;
+color:white;
+font-size:17px;
+font-weight:bold;
 }
 
-button:active{
-  transform:scale(.98);
+button:hover{
+opacity:.85;
 }
 
 canvas{
-  width:100%;
-  max-width:360px;
-  display:block;
-  margin:25px auto;
-  border-radius:15px;
-  background:black;
+display:block;
+width:100%;
+max-width:360px;
+margin:25px auto;
+border-radius:15px;
+background:#000;
 }
 
 #download{
-  display:none;
-  background:#16a34a;
+display:none;
+background:#16a34a;
 }
 
 #status{
-  text-align:center;
-  color:#00e5ff;
-  margin-top:15px;
+text-align:center;
+color:#00e5ff;
+margin-top:15px;
 }
 </style>
 </head>
@@ -93,39 +100,31 @@ canvas{
 <body>
 
 <header>
-<h1>🎬 RSAI Video Generator</h1>
-<p>Free • TTS • No API Key</p>
+<h1>🎬 RSAI Shorts Generator</h1>
+<p>Free • 9:16 • TTS</p>
 </header>
 
 <div class="container">
 
 <div class="card">
 
-<label>📝 Video Text</label>
+<label>📝 Video Script</label>
 
-<textarea id="text">
-Welcome to RSAI Video Generator!
-</textarea>
+<textarea id="text">This is a new RSAI Shorts video! Follow for more amazing videos.</textarea>
 
 <label>🎙️ Voice</label>
 
 <select id="voice"></select>
 
-<button onclick="speakText()">
-🔊 Test Voice
-</button>
+<button onclick="testVoice()">🔊 Test Voice</button>
 
-<button onclick="generateVideo()">
-🚀 Generate Video
-</button>
+<button onclick="generate()">🚀 Generate 9:16 Video</button>
 
 <p id="status"></p>
 
 <canvas id="canvas" width="720" height="1280"></canvas>
 
-<button id="download">
-⬇️ Download Video
-</button>
+<button id="download">⬇️ Download Video</button>
 
 </div>
 
@@ -133,24 +132,23 @@ Welcome to RSAI Video Generator!
 
 <script>
 
-const voiceSelect=document.getElementById("voice");
+const voiceBox=document.getElementById("voice");
 
 function loadVoices(){
 
 let voices=speechSynthesis.getVoices();
 
-voiceSelect.innerHTML="";
+voiceBox.innerHTML="";
 
-voices.forEach((voice,index)=>{
+voices.forEach((v,i)=>{
 
 let option=document.createElement("option");
 
-option.value=index;
+option.value=i;
 
-option.textContent=
-voice.name+" ("+voice.lang+")";
+option.textContent=v.name+" - "+v.lang;
 
-voiceSelect.appendChild(option);
+voiceBox.appendChild(option);
 
 });
 
@@ -161,51 +159,37 @@ speechSynthesis.onvoiceschanged=loadVoices;
 loadVoices();
 
 
-function speakText(){
+function testVoice(){
 
 let text=document.getElementById("text").value;
-
-if(!text.trim()){
-
-alert("Please enter text!");
-
-return;
-
-}
 
 speechSynthesis.cancel();
 
 let voices=speechSynthesis.getVoices();
 
-let index=parseInt(voiceSelect.value)||0;
+let index=parseInt(voiceBox.value)||0;
 
-let utterance=new SpeechSynthesisUtterance(text);
+let u=new SpeechSynthesisUtterance(text);
 
-if(voices[index]){
+if(voices[index])u.voice=voices[index];
 
-utterance.voice=voices[index];
+u.rate=1;
+u.pitch=1;
+u.volume=1;
 
-}
-
-utterance.rate=1;
-utterance.pitch=1;
-utterance.volume=1;
-
-speechSynthesis.speak(utterance);
-
+speechSynthesis.speak(u);
 }
 
 
-function generateVideo(){
+function generate(){
 
-let text=document.getElementById("text").value;
+let text=document.getElementById("text").value.trim();
 
-if(!text.trim()){
+if(!text){
 
-alert("Please enter text!");
+alert("Enter your script first!");
 
 return;
-
 }
 
 let canvas=document.getElementById("canvas");
@@ -216,7 +200,7 @@ let status=document.getElementById("status");
 
 let download=document.getElementById("download");
 
-status.innerText="🎬 Generating video...";
+status.innerText="🎬 Creating Shorts...";
 
 download.style.display="none";
 
@@ -226,7 +210,7 @@ let recorder=new MediaRecorder(stream);
 
 let chunks=[];
 
-recorder.ondataavailable=function(e){
+recorder.ondataavailable=e=>{
 
 if(e.data.size>0){
 
@@ -236,7 +220,7 @@ chunks.push(e.data);
 
 };
 
-recorder.onstop=function(){
+recorder.onstop=()=>{
 
 let blob=new Blob(chunks,{
 type:"video/webm"
@@ -246,103 +230,141 @@ let url=URL.createObjectURL(blob);
 
 download.style.display="block";
 
-download.onclick=function(){
+download.onclick=()=>{
 
 let a=document.createElement("a");
 
 a.href=url;
 
-a.download="RSAI-video.webm";
+a.download="RSAI-Shorts.webm";
 
 a.click();
 
 };
 
-status.innerText="✅ Video Ready!";
-
+status.innerText="✅ Shorts Ready!";
 };
 
 
-speechSynthesis.cancel();
-
 let voices=speechSynthesis.getVoices();
 
-let index=parseInt(voiceSelect.value)||0;
+let index=parseInt(voiceBox.value)||0;
 
-let utterance=new SpeechSynthesisUtterance(text);
+let voice=new SpeechSynthesisUtterance(text);
 
-if(voices[index]){
+if(voices[index])voice.voice=voices[index];
 
-utterance.voice=voices[index];
-
-}
-
-utterance.rate=1;
-utterance.pitch=1;
-utterance.volume=1;
+voice.rate=1;
+voice.pitch=1;
+voice.volume=1;
 
 
 recorder.start();
 
-let start=Date.now();
+speechSynthesis.cancel();
+
+speechSynthesis.speak(voice);
+
+
+let start=performance.now();
 
 let duration=Math.max(
 5,
-Math.min(20,text.length/12)
+Math.min(15,text.length/12)
 );
 
 
-function draw(){
+function frame(now){
 
-let elapsed=(Date.now()-start)/1000;
+let elapsed=(now-start)/1000;
 
-let progress=elapsed/duration;
+let p=elapsed/duration;
 
-ctx.fillStyle="#080b16";
+
+// Background
+
+let gradient=ctx.createLinearGradient(
+0,0,720,1280
+);
+
+gradient.addColorStop(
+0,
+"#020617"
+);
+
+gradient.addColorStop(
+.5,
+"#111827"
+);
+
+gradient.addColorStop(
+1,
+"#1e1b4b"
+);
+
+ctx.fillStyle=gradient;
 
 ctx.fillRect(
 0,
 0,
-canvas.width,
-canvas.height
+720,
+1280
 );
 
 
-// animated circle
+// Animated circles
 
 let x=360+
-Math.sin(elapsed*2)*180;
+Math.sin(elapsed*2)*220;
 
 let y=350+
-Math.cos(elapsed*2)*120;
+Math.cos(elapsed*1.5)*150;
 
 ctx.fillStyle="#008cff";
+
+ctx.globalAlpha=.25;
 
 ctx.beginPath();
 
 ctx.arc(
 x,
 y,
-90,
+170,
 0,
 Math.PI*2
 );
 
 ctx.fill();
 
+ctx.globalAlpha=1;
 
-// text
 
-ctx.fillStyle="white";
-
-ctx.font="bold 52px Arial";
+// Main title
 
 ctx.textAlign="center";
 
+ctx.fillStyle="#00e5ff";
+
+ctx.font="bold 30px Arial";
+
+ctx.fillText(
+"RSAI SHORTS",
+360,
+120
+);
+
+
+// Script text
+
+ctx.fillStyle="white";
+
+ctx.font="bold 48px Arial";
+
 let words=text.split(" ");
 
-let line="";
 let lines=[];
+
+let line="";
 
 for(let word of words){
 
@@ -362,38 +384,66 @@ line=test;
 
 }
 
-lines.push(line);
+if(line)lines.push(line);
 
-let startY=620-
-(lines.length*32);
 
-lines.forEach((line,i)=>{
+let lineHeight=70;
+
+let totalHeight=
+lines.length*lineHeight;
+
+let yStart=
+640-totalHeight/2;
+
+
+lines.forEach((l,i)=>{
 
 ctx.fillText(
-line,
+l,
 360,
-startY+i*70
+yStart+i*lineHeight
 );
 
 });
 
 
-// logo
+// Progress bar
 
-ctx.font="bold 28px Arial";
+ctx.fillStyle="#333";
+
+ctx.fillRect(
+80,
+1100,
+560,
+12
+);
 
 ctx.fillStyle="#00e5ff";
 
+ctx.fillRect(
+80,
+1100,
+560*Math.min(p,1),
+12
+);
+
+
+// Footer
+
+ctx.font="bold 26px Arial";
+
+ctx.fillStyle="white";
+
 ctx.fillText(
-"RSAI",
+"Follow for more 🚀",
 360,
-1120
+1170
 );
 
 
 if(elapsed<duration){
 
-requestAnimationFrame(draw);
+requestAnimationFrame(frame);
 
 }else{
 
@@ -403,13 +453,7 @@ recorder.stop();
 
 }
 
-draw();
-
-utterance.onend=function(){
-
-};
-
-speechSynthesis.speak(utterance);
+requestAnimationFrame(frame);
 
 }
 
