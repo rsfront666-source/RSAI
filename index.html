@@ -1,124 +1,397 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>RSAI Video Generator</title>
 
 <style>
+*{box-sizing:border-box}
+
 body{
+  margin:0;
+  font-family:Arial,sans-serif;
   background:#080b16;
   color:white;
-  font-family:Arial;
+}
+
+header{
   text-align:center;
+  padding:25px 15px;
+}
+
+h1{
+  color:#00e5ff;
+}
+
+.container{
+  max-width:700px;
+  margin:auto;
   padding:20px;
 }
-textarea{
-  width:90%;
-  max-width:600px;
-  height:120px;
-  padding:15px;
-  border-radius:10px;
-  background:#151a2e;
-  color:white;
-  font-size:18px;
+
+.card{
+  background:#11162a;
+  padding:20px;
+  border-radius:18px;
 }
-button{
-  margin:15px;
-  padding:15px 25px;
-  border:0;
+
+textarea,select{
+  width:100%;
+  margin:8px 0 15px;
+  padding:14px;
   border-radius:10px;
+  border:1px solid #333b58;
+  background:#080b16;
+  color:white;
+  font-size:16px;
+}
+
+textarea{
+  height:150px;
+}
+
+button{
+  width:100%;
+  padding:15px;
+  margin-top:10px;
+  border:0;
+  border-radius:12px;
   background:#008cff;
   color:white;
-  font-size:18px;
+  font-size:17px;
   font-weight:bold;
 }
+
+button:active{
+  transform:scale(.98);
+}
+
 canvas{
-  width:90%;
+  width:100%;
   max-width:360px;
+  display:block;
+  margin:25px auto;
+  border-radius:15px;
   background:black;
-  border-radius:10px;
+}
+
+#download{
+  display:none;
+  background:#16a34a;
+}
+
+#status{
+  text-align:center;
+  color:#00e5ff;
+  margin-top:15px;
 }
 </style>
 </head>
 
 <body>
 
+<header>
 <h1>🎬 RSAI Video Generator</h1>
+<p>Free • TTS • No API Key</p>
+</header>
 
-<textarea id="text">Hello from RSAI!</textarea>
+<div class="container">
 
-<br>
+<div class="card">
 
-<button onclick="startVideo()">🚀 Generate Video</button>
+<label>📝 Video Text</label>
+
+<textarea id="text">
+Welcome to RSAI Video Generator!
+</textarea>
+
+<label>🎙️ Voice</label>
+
+<select id="voice"></select>
+
+<button onclick="speakText()">
+🔊 Test Voice
+</button>
+
+<button onclick="generateVideo()">
+🚀 Generate Video
+</button>
 
 <p id="status"></p>
 
 <canvas id="canvas" width="720" height="1280"></canvas>
 
-<br>
+<button id="download">
+⬇️ Download Video
+</button>
 
-<a id="download" style="display:none">
-<button>⬇️ Download Video</button>
-</a>
+</div>
+
+</div>
 
 <script>
 
-function startVideo(){
+const voiceSelect=document.getElementById("voice");
 
-const text=document.getElementById("text").value;
-const canvas=document.getElementById("canvas");
-const ctx=canvas.getContext("2d");
-const status=document.getElementById("status");
+function loadVoices(){
 
-status.innerText="Generating...";
+let voices=speechSynthesis.getVoices();
+
+voiceSelect.innerHTML="";
+
+voices.forEach((voice,index)=>{
+
+let option=document.createElement("option");
+
+option.value=index;
+
+option.textContent=
+voice.name+" ("+voice.lang+")";
+
+voiceSelect.appendChild(option);
+
+});
+
+}
+
+speechSynthesis.onvoiceschanged=loadVoices;
+
+loadVoices();
+
+
+function speakText(){
+
+let text=document.getElementById("text").value;
+
+if(!text.trim()){
+
+alert("Please enter text!");
+
+return;
+
+}
+
+speechSynthesis.cancel();
+
+let voices=speechSynthesis.getVoices();
+
+let index=parseInt(voiceSelect.value)||0;
+
+let utterance=new SpeechSynthesisUtterance(text);
+
+if(voices[index]){
+
+utterance.voice=voices[index];
+
+}
+
+utterance.rate=1;
+utterance.pitch=1;
+utterance.volume=1;
+
+speechSynthesis.speak(utterance);
+
+}
+
+
+function generateVideo(){
+
+let text=document.getElementById("text").value;
+
+if(!text.trim()){
+
+alert("Please enter text!");
+
+return;
+
+}
+
+let canvas=document.getElementById("canvas");
+
+let ctx=canvas.getContext("2d");
+
+let status=document.getElementById("status");
+
+let download=document.getElementById("download");
+
+status.innerText="🎬 Generating video...";
+
+download.style.display="none";
 
 let stream=canvas.captureStream(30);
 
 let recorder=new MediaRecorder(stream);
-let data=[];
+
+let chunks=[];
 
 recorder.ondataavailable=function(e){
-if(e.data.size>0)data.push(e.data);
+
+if(e.data.size>0){
+
+chunks.push(e.data);
+
+}
+
 };
 
 recorder.onstop=function(){
 
-let blob=new Blob(data,{type:"video/webm"});
+let blob=new Blob(chunks,{
+type:"video/webm"
+});
+
 let url=URL.createObjectURL(blob);
 
-let link=document.getElementById("download");
+download.style.display="block";
 
-link.href=url;
-link.download="RSAI-video.webm";
-link.style.display="inline";
+download.onclick=function(){
+
+let a=document.createElement("a");
+
+a.href=url;
+
+a.download="RSAI-video.webm";
+
+a.click();
+
+};
 
 status.innerText="✅ Video Ready!";
 
 };
 
+
+speechSynthesis.cancel();
+
+let voices=speechSynthesis.getVoices();
+
+let index=parseInt(voiceSelect.value)||0;
+
+let utterance=new SpeechSynthesisUtterance(text);
+
+if(voices[index]){
+
+utterance.voice=voices[index];
+
+}
+
+utterance.rate=1;
+utterance.pitch=1;
+utterance.volume=1;
+
+
 recorder.start();
 
 let start=Date.now();
 
-function draw(){
-
-let time=(Date.now()-start)/1000;
-
-ctx.fillStyle="#080b16";
-ctx.fillRect(0,0,720,1280);
-
-ctx.fillStyle="white";
-ctx.font="bold 60px Arial";
-ctx.textAlign="center";
-
-ctx.fillText(
-text.substring(0,35),
-360,
-640
+let duration=Math.max(
+5,
+Math.min(20,text.length/12)
 );
 
-if(time<5){
+
+function draw(){
+
+let elapsed=(Date.now()-start)/1000;
+
+let progress=elapsed/duration;
+
+ctx.fillStyle="#080b16";
+
+ctx.fillRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+
+// animated circle
+
+let x=360+
+Math.sin(elapsed*2)*180;
+
+let y=350+
+Math.cos(elapsed*2)*120;
+
+ctx.fillStyle="#008cff";
+
+ctx.beginPath();
+
+ctx.arc(
+x,
+y,
+90,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+
+// text
+
+ctx.fillStyle="white";
+
+ctx.font="bold 52px Arial";
+
+ctx.textAlign="center";
+
+let words=text.split(" ");
+
+let line="";
+let lines=[];
+
+for(let word of words){
+
+let test=line+word+" ";
+
+if(ctx.measureText(test).width>600){
+
+lines.push(line);
+
+line=word+" ";
+
+}else{
+
+line=test;
+
+}
+
+}
+
+lines.push(line);
+
+let startY=620-
+(lines.length*32);
+
+lines.forEach((line,i)=>{
+
+ctx.fillText(
+line,
+360,
+startY+i*70
+);
+
+});
+
+
+// logo
+
+ctx.font="bold 28px Arial";
+
+ctx.fillStyle="#00e5ff";
+
+ctx.fillText(
+"RSAI",
+360,
+1120
+);
+
+
+if(elapsed<duration){
 
 requestAnimationFrame(draw);
 
@@ -132,9 +405,15 @@ recorder.stop();
 
 draw();
 
+utterance.onend=function(){
+
+};
+
+speechSynthesis.speak(utterance);
+
 }
 
 </script>
 
 </body>
-</html>
+  </html>
