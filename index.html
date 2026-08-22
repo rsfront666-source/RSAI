@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Free AI Video Generator</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #0b0b12;
+      color: white;
+      display: flex;
+      justify-content: center;
+      padding: 25px 15px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 650px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      font-size: 34px;
+      font-weight: bold;
+    }
+
+    .logo span {
+      color: #8b5cf6;
+    }
+
+    .subtitle {
+      color: #aaa;
+      margin-top: 8px;
+    }
+
+    .card {
+      background: #151520;
+      border: 1px solid #29293a;
+      border-radius: 20px;
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    textarea {
+      width: 100%;
+      height: 140px;
+      resize: none;
+      border: none;
+      outline: none;
+      border-radius: 14px;
+      padding: 15px;
+      background: #0d0d16;
+      color: white;
+      font-size: 16px;
+    }
+
+    textarea::placeholder {
+      color: #777;
+    }
+
+    .options {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    select {
+      flex: 1;
+      padding: 13px;
+      border-radius: 12px;
+      border: 1px solid #333;
+      background: #0d0d16;
+      color: white;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      background: #8b5cf6;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .result {
+      display: none;
+      text-align: center;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      color: #bbb;
+      padding: 15px;
+    }
+
+    .spinner {
+      width: 35px;
+      height: 35px;
+      border: 4px solid #333;
+      border-top: 4px solid #8b5cf6;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .video-box {
+      height: 280px;
+      border-radius: 15px;
+      background: #08080d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+    }
+
+    .footer {
+      text-align: center;
+      color: #666;
+      font-size: 13px;
+      margin-top: 25px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div class="header">
+      <div class="logo">AI <span>Video</span> Generator</div>
+      <div class="subtitle">Create videos from your imagination 🎬</div>
+    </div>
+
+    <div class="card">
+
+      <label>🎬 Describe your video</label>
+
+      <textarea id="prompt"
+        placeholder="Example: A superhero dog flying through a futuristic city at night, cinematic lighting..."></textarea>
+
+      <div class="options">
+
+        <select id="ratio">
+          <option value="9:16">9:16 • Shorts / TikTok</option>
+          <option value="16:9">16:9 • YouTube</option>
+          <option value="1:1">1:1 • Square</option>
+        </select>
+
+        <select id="duration">
+          <option value="5">5 seconds</option>
+          <option value="10">10 seconds</option>
+          <option value="15">15 seconds</option>
+        </select>
+
+      </div>
+
+      <button onclick="generateVideo()">
+        ✨ Generate Video
+      </button>
+
+    </div>
+
+    <div class="card loading" id="loading">
+
+      <div class="spinner
