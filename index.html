@@ -1,805 +1,140 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>RSAI Video Generator</title>
 
 <style>
-*{
-  box-sizing:border-box;
-}
-
 body{
-  margin:0;
-  font-family:Arial,sans-serif;
   background:#080b16;
   color:white;
-}
-
-header{
+  font-family:Arial;
   text-align:center;
-  padding:25px 15px;
-  background:linear-gradient(135deg,#151a35,#080b16);
-}
-
-header h1{
-  margin:0;
-  font-size:30px;
-  color:#00e5ff;
-}
-
-header p{
-  color:#aaa;
-}
-
-.container{
-  max-width:700px;
-  margin:25px auto;
   padding:20px;
 }
-
-.card{
-  background:#11162a;
-  padding:20px;
-  border-radius:18px;
-  box-shadow:0 0 25px #0008;
-}
-
-label{
-  display:block;
-  margin:12px 0 7px;
-  font-weight:bold;
-}
-
-textarea,input,select{
-  width:100%;
-  padding:13px;
-  border:1px solid #303752;
-  border-radius:10px;
-  background:#080b16;
-  color:white;
-  outline:none;
-}
-
 textarea{
-  height:130px;
-  resize:vertical;
-}
-
-button{
-  width:100%;
-  padding:15px;
-  margin-top:18px;
-  border:0;
-  border-radius:12px;
-  background:linear-gradient(90deg,#00c6ff,#0072ff);
-  color:white;
-  font-size:17px;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-button:hover{
-  opacity:.85;
-}
-
-#videoBox{
-  margin-top:25px;
-  text-align:center;
-}
-
-canvas{
-  width:100%;
+  width:90%;
   max-width:600px;
-  border-radius:15px;
+  height:120px;
+  padding:15px;
+  border-radius:10px;
+  background:#151a2e;
+  color:white;
+  font-size:18px;
+}
+button{
+  margin:15px;
+  padding:15px 25px;
+  border:0;
+  border-radius:10px;
+  background:#008cff;
+  color:white;
+  font-size:18px;
+  font-weight:bold;
+}
+canvas{
+  width:90%;
+  max-width:360px;
   background:black;
-}
-
-.download{
-  display:none;
-  background:#16a34a;
-}
-
-.status{
-  text-align:center;
-  margin-top:15px;
-  color:#00e5ff;
+  border-radius:10px;
 }
 </style>
 </head>
 
 <body>
 
-<header>
-  <h1>🎬 RSAI Video Generator</h1>
-  <p>Free • Simple • No API Key</p>
-</header>
+<h1>🎬 RSAI Video Generator</h1>
 
-<div class="container">
+<textarea id="text">Hello from RSAI!</textarea>
 
-<div class="card">
+<br>
 
-<label>🎯 Video Text</label>
+<button onclick="startVideo()">🚀 Generate Video</button>
 
-<textarea id="text"
-placeholder="Type your video text here...">Welcome to RSAI Video Generator!</textarea>
+<p id="status"></p>
 
-<label>⏱️ Duration</label>
+<canvas id="canvas" width="720" height="1280"></canvas>
 
-<select id="duration">
-  <option value="5">5 Seconds</option>
-  <option value="10" selected>10 Seconds</option>
-  <option value="15">15 Seconds</option>
-</select>
+<br>
 
-<label>🎨 Background</label>
-
-<select id="bg">
-  <option value="space">Space</option>
-  <option value="blue">Blue</option>
-  <option value="purple">Purple</option>
-  <option value="black">Black</option>
-</select>
-
-<button onclick="generateVideo()">
-  🚀 Generate Video
-</button>
-
-<div class="status" id="status"></div>
-
-<div id="videoBox">
-  <canvas id="canvas" width="720" height="1280"></canvas>
-
-  <button class="download" id="download">
-    ⬇️ Download Video
-  </button>
-</div>
-
-</div>
-</div>
+<a id="download" style="display:none">
+<button>⬇️ Download Video</button>
+</a>
 
 <script>
 
-let canvas = document.getElementById("canvas");
-let ctx = canvas.getContext("2d");
+function startVideo(){
 
-let recording = false;
-let chunks = [];
+const text=document.getElementById("text").value;
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+const status=document.getElementById("status");
 
-function drawBackground(type){
+status.innerText="Generating...";
 
-  if(type === "blue"){
-    let g = ctx.createLinearGradient(0,0,720,1280);
-    g.addColorStop(0,"#001f3f");
-    g.addColorStop(1,"#00a8ff");
-    ctx.fillStyle = g;
-  }
+let stream=canvas.captureStream(30);
 
-  else if(type === "purple"){
-    let g = ctx.createLinearGradient(0,0,720,1280);
-    g.addColorStop(0,"#240046");
-    g.addColorStop(1,"#9d4edd");
-    ctx.fillStyle = g;
-  }
+let recorder=new MediaRecorder(stream);
+let data=[];
 
-  else if(type === "space"){
-    let g = ctx.createLinearGradient(0,0,720,1280);
-    g.addColorStop(0,"#05001a");
-    g.addColorStop(.5,"#10002b");
-    g.addColorStop(1,"#000000");
-    ctx.fillStyle = g;
-  }
+recorder.ondataavailable=function(e){
+if(e.data.size>0)data.push(e.data);
+};
 
-  else{
-    ctx.fillStyle="#000000";
-  }
+recorder.onstop=function(){
 
-  ctx.fillRect(0,0,720,1280);
+let blob=new Blob(data,{type:"video/webm"});
+let url=URL.createObjectURL(blob);
 
-  // stars
-  if(type === "space"){
-    for(let i=0;i<80;i++){
-      let x=Math.random()*720;
-      let y=Math.random()*1280;
-      let r=Math.random()*2+1;
+let link=document.getElementById("download");
 
-      ctx.fillStyle="white";
-      ctx.beginPath();
-      ctx.arc(x,y,r,0,Math.PI*2);
-      ctx.fill();
-    }
-  }
-}
+link.href=url;
+link.download="RSAI-video.webm";
+link.style.display="inline";
 
-function wrapText(text,maxWidth){
+status.innerText="✅ Video Ready!";
 
-  let words=text.split(" ");
-  let lines=[];
-  let line="";
+};
 
-  for(let word of words){
+recorder.start();
 
-    let test=line+word+" ";
+let start=Date.now();
 
-    if(ctx.measureText(test).width > maxWidth){
+function draw(){
 
-      lines.push(line);
-      line=word+" ";
+let time=(Date.now()-start)/1000;
 
-    }else{
-      line=test;
-    }
-  }
+ctx.fillStyle="#080b16";
+ctx.fillRect(0,0,720,1280);
 
-  lines.push(line);
+ctx.fillStyle="white";
+ctx.font="bold 60px Arial";
+ctx.textAlign="center";
 
-  return lines;
-}
-
-function drawFrame(text,bg,progress){
-
-  drawBackground(bg);
-
-  ctx.textAlign="center";
-  ctx.textBaseline="middle";
-
-  let scale=1;
-
-  if(progress < .2){
-    scale=progress/.2;
-  }
-
-  if(progress > .8){
-    scale=(1-progress)/.2;
-  }
-
-  ctx.save();
-
-  ctx.translate(360,640);
-  ctx.scale(Math.max(.1,scale),Math.max(.1,scale));
-
-  ctx.font="bold 58px Arial";
-
-  let lines=wrapText(text,600);
-
-  let lineHeight=75;
-  let startY=-(lines.length-1)*lineHeight/2;
-
-  for(let i=0;i<lines.length;i++){
-
-    ctx.fillStyle="rgba(0,0,0,.5)";
-    ctx.fillText(
-      lines[i],
-      5,
-      startY+i*lineHeight+5
-    );
-
-    ctx.fillStyle="white";
-    ctx.fillText(
-      lines[i],
-      0,
-      startY+i*lineHeight
-    );
-  }
-
-  ctx.restore();
-
-  ctx.font="bold 24px Arial";
-  ctx.fillStyle="#00e5ff";
-
-  ctx.fillText(
-    "RSAI",
-    360,
-    1170
-  );
-}
-
-async function generateVideo(){
-
-  let text=document.getElementById("text").value.trim();
-
-  if(!text){
-    alert("Please enter some text!");
-    return;
-  }
-
-  let duration=parseInt(
-    document.getElementById("duration").value
-  );
-
-  let bg=document.getElementById("bg").value;
-
-  let status=document.getElementById("status");
-
-  status.innerText="🎬 Generating video...";
-
-  chunks=[];
-
-  let stream=canvas.captureStream(30);
-
-  let mime="video/webm";
-
-  if(MediaRecorder.isTypeSupported("video/webm;codecs=vp9")){
-    mime="video/webm;codecs=vp9";
-  }
-
-  let recorder=new MediaRecorder(stream,{
-    mimeType:mime
-  });
-
-  recorder.ondataavailable=e=>{
-    if(e.data.size>0){
-      chunks.push(e.data);
-    }
-  };
-
-  recorder.onstop=()=>{
-
-    let blob=new Blob(chunks,{
-      type:mime
-    });
-
-    let url=URL.createObjectURL(blob);
-
-    let download=document.getElementById("download");
-
-    download.style.display="block";
-
-    download.onclick=()=>{
-
-      let a=document.createElement("a");
-
-      a.href=url;
-      a.download="RSAI-video.webm";
-
-      document.body.appendChild(a);
-
-      a.click();
-
-      document.body.removeChild(a);
-    };
-
-    status.innerText="✅ Video ready!";
-  };
-
-  recorder.start();
-
-  let start=performance.now();
-
-  function animate(now){
-
-    let elapsed=(now-start)/1000;
-
-    let progress=elapsed/duration;
-
-    drawFrame(text,bg,progress);
-
-    if(elapsed < duration){
-
-      requestAnimationFrame(animate);
-
-    }else{
-
-      drawFrame(text,bg,1);
-
-      recorder.stop();
-    }
-  }
-
-  requestAnimationFrame(animate);
-}
-
-drawFrame(
-  "Welcome to RSAI Video Generator!",
-  "space",
-  .5
+ctx.fillText(
+text.substring(0,35),
+360,
+640
 );
+
+if(time<5){
+
+requestAnimationFrame(draw);
+
+}else{
+
+recorder.stop();
+
+}
+
+}
+
+draw();
+
+}
 
 </script>
 
 </body>
-  </html><!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>RSAI Video Generator</title>
-
-<style>
-*{
-  box-sizing:border-box;
-}
-
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#080b16;
-  color:white;
-}
-
-header{
-  text-align:center;
-  padding:25px 15px;
-  background:linear-gradient(135deg,#151a35,#080b16);
-}
-
-header h1{
-  margin:0;
-  font-size:30px;
-  color:#00e5ff;
-}
-
-header p{
-  color:#aaa;
-}
-
-.container{
-  max-width:700px;
-  margin:25px auto;
-  padding:20px;
-}
-
-.card{
-  background:#11162a;
-  padding:20px;
-  border-radius:18px;
-  box-shadow:0 0 25px #0008;
-}
-
-label{
-  display:block;
-  margin:12px 0 7px;
-  font-weight:bold;
-}
-
-textarea,input,select{
-  width:100%;
-  padding:13px;
-  border:1px solid #303752;
-  border-radius:10px;
-  background:#080b16;
-  color:white;
-  outline:none;
-}
-
-textarea{
-  height:130px;
-  resize:vertical;
-}
-
-button{
-  width:100%;
-  padding:15px;
-  margin-top:18px;
-  border:0;
-  border-radius:12px;
-  background:linear-gradient(90deg,#00c6ff,#0072ff);
-  color:white;
-  font-size:17px;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-button:hover{
-  opacity:.85;
-}
-
-#videoBox{
-  margin-top:25px;
-  text-align:center;
-}
-
-canvas{
-  width:100%;
-  max-width:600px;
-  border-radius:15px;
-  background:black;
-}
-
-.download{
-  display:none;
-  background:#16a34a;
-}
-
-.status{
-  text-align:center;
-  margin-top:15px;
-  color:#00e5ff;
-}
-</style>
-</head>
-
-<body>
-
-<header>
-  <h1>🎬 RSAI Video Generator</h1>
-  <p>Free • Simple • No API Key</p>
-</header>
-
-<div class="container">
-
-<div class="card">
-
-<label>🎯 Video Text</label>
-
-<textarea id="text"
-placeholder="Type your video text here...">Welcome to RSAI Video Generator!</textarea>
-
-<label>⏱️ Duration</label>
-
-<select id="duration">
-  <option value="5">5 Seconds</option>
-  <option value="10" selected>10 Seconds</option>
-  <option value="15">15 Seconds</option>
-</select>
-
-<label>🎨 Background</label>
-
-<select id="bg">
-  <option value="space">Space</option>
-  <option value="blue">Blue</option>
-  <option value="purple">Purple</option>
-  <option value="black">Black</option>
-</select>
-
-<button onclick="generateVideo()">
-  🚀 Generate Video
-</button>
-
-<div class="status" id="status"></div>
-
-<div id="videoBox">
-  <canvas id="canvas" width="720" height="1280"></canvas>
-
-  <button class="download" id="download">
-    ⬇️ Download Video
-  </button>
-</div>
-
-</div>
-</div>
-
-<script>
-
-let canvas = document.getElementById("canvas");
-let ctx = canvas.getContext("2d");
-
-let recording = false;
-let chunks = [];
-
-function drawBackground(type){
-
-  if(type === "blue"){
-    let g = ctx.createLinearGradient(0,0,720,1280);
-    g.addColorStop(0,"#001f3f");
-    g.addColorStop(1,"#00a8ff");
-    ctx.fillStyle = g;
-  }
-
-  else if(type === "purple"){
-    let g = ctx.createLinearGradient(0,0,720,1280);
-    g.addColorStop(0,"#240046");
-    g.addColorStop(1,"#9d4edd");
-    ctx.fillStyle = g;
-  }
-
-  else if(type === "space"){
-    let g = ctx.createLinearGradient(0,0,720,1280);
-    g.addColorStop(0,"#05001a");
-    g.addColorStop(.5,"#10002b");
-    g.addColorStop(1,"#000000");
-    ctx.fillStyle = g;
-  }
-
-  else{
-    ctx.fillStyle="#000000";
-  }
-
-  ctx.fillRect(0,0,720,1280);
-
-  // stars
-  if(type === "space"){
-    for(let i=0;i<80;i++){
-      let x=Math.random()*720;
-      let y=Math.random()*1280;
-      let r=Math.random()*2+1;
-
-      ctx.fillStyle="white";
-      ctx.beginPath();
-      ctx.arc(x,y,r,0,Math.PI*2);
-      ctx.fill();
-    }
-  }
-}
-
-function wrapText(text,maxWidth){
-
-  let words=text.split(" ");
-  let lines=[];
-  let line="";
-
-  for(let word of words){
-
-    let test=line+word+" ";
-
-    if(ctx.measureText(test).width > maxWidth){
-
-      lines.push(line);
-      line=word+" ";
-
-    }else{
-      line=test;
-    }
-  }
-
-  lines.push(line);
-
-  return lines;
-}
-
-function drawFrame(text,bg,progress){
-
-  drawBackground(bg);
-
-  ctx.textAlign="center";
-  ctx.textBaseline="middle";
-
-  let scale=1;
-
-  if(progress < .2){
-    scale=progress/.2;
-  }
-
-  if(progress > .8){
-    scale=(1-progress)/.2;
-  }
-
-  ctx.save();
-
-  ctx.translate(360,640);
-  ctx.scale(Math.max(.1,scale),Math.max(.1,scale));
-
-  ctx.font="bold 58px Arial";
-
-  let lines=wrapText(text,600);
-
-  let lineHeight=75;
-  let startY=-(lines.length-1)*lineHeight/2;
-
-  for(let i=0;i<lines.length;i++){
-
-    ctx.fillStyle="rgba(0,0,0,.5)";
-    ctx.fillText(
-      lines[i],
-      5,
-      startY+i*lineHeight+5
-    );
-
-    ctx.fillStyle="white";
-    ctx.fillText(
-      lines[i],
-      0,
-      startY+i*lineHeight
-    );
-  }
-
-  ctx.restore();
-
-  ctx.font="bold 24px Arial";
-  ctx.fillStyle="#00e5ff";
-
-  ctx.fillText(
-    "RSAI",
-    360,
-    1170
-  );
-}
-
-async function generateVideo(){
-
-  let text=document.getElementById("text").value.trim();
-
-  if(!text){
-    alert("Please enter some text!");
-    return;
-  }
-
-  let duration=parseInt(
-    document.getElementById("duration").value
-  );
-
-  let bg=document.getElementById("bg").value;
-
-  let status=document.getElementById("status");
-
-  status.innerText="🎬 Generating video...";
-
-  chunks=[];
-
-  let stream=canvas.captureStream(30);
-
-  let mime="video/webm";
-
-  if(MediaRecorder.isTypeSupported("video/webm;codecs=vp9")){
-    mime="video/webm;codecs=vp9";
-  }
-
-  let recorder=new MediaRecorder(stream,{
-    mimeType:mime
-  });
-
-  recorder.ondataavailable=e=>{
-    if(e.data.size>0){
-      chunks.push(e.data);
-    }
-  };
-
-  recorder.onstop=()=>{
-
-    let blob=new Blob(chunks,{
-      type:mime
-    });
-
-    let url=URL.createObjectURL(blob);
-
-    let download=document.getElementById("download");
-
-    download.style.display="block";
-
-    download.onclick=()=>{
-
-      let a=document.createElement("a");
-
-      a.href=url;
-      a.download="RSAI-video.webm";
-
-      document.body.appendChild(a);
-
-      a.click();
-
-      document.body.removeChild(a);
-    };
-
-    status.innerText="✅ Video ready!";
-  };
-
-  recorder.start();
-
-  let start=performance.now();
-
-  function animate(now){
-
-    let elapsed=(now-start)/1000;
-
-    let progress=elapsed/duration;
-
-    drawFrame(text,bg,progress);
-
-    if(elapsed < duration){
-
-      requestAnimationFrame(animate);
-
-    }else{
-
-      drawFrame(text,bg,1);
-
-      recorder.stop();
-    }
-  }
-
-  requestAnimationFrame(animate);
-}
-
-drawFrame(
-  "Welcome to RSAI Video Generator!",
-  "space",
-  .5
-);
-
-</script>
-
-</body>
-  </html>
+</html>
