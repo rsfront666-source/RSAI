@@ -2,97 +2,145 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>RSAI Shorts Video Generator</title>
+<title>RSAI Video Generator</title>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
 body{
-margin:0;
-background:#070914;
-color:white;
-font-family:Arial,sans-serif;
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#080b16;
+  color:white;
 }
 
 header{
-text-align:center;
-padding:22px;
-background:#0d1122;
+  text-align:center;
+  padding:25px 15px;
+  background:#10152a;
+  border-bottom:1px solid #252b48;
 }
 
-h1{
-margin:0;
-color:#00e5ff;
+header h1{
+  margin:0;
+  font-size:30px;
+}
+
+header p{
+  margin:8px 0 0;
+  color:#aaa;
 }
 
 .container{
-max-width:600px;
-margin:auto;
-padding:18px;
+  max-width:700px;
+  margin:25px auto;
+  padding:15px;
 }
 
 .card{
-background:#11172b;
-padding:20px;
-border-radius:18px;
+  background:#11172b;
+  border:1px solid #252b48;
+  border-radius:15px;
+  padding:20px;
+  margin-bottom:20px;
 }
 
 label{
-display:block;
-margin:12px 0 6px;
-font-weight:bold;
+  display:block;
+  margin-bottom:8px;
+  font-weight:bold;
 }
 
-textarea,select{
-width:100%;
-padding:13px;
-border-radius:10px;
-border:1px solid #343c5c;
-background:#080b16;
-color:white;
-font-size:16px;
+textarea,
+input[type="file"]{
+  width:100%;
+  background:#080b16;
+  color:white;
+  border:1px solid #303754;
+  border-radius:10px;
+  padding:12px;
+  margin-bottom:15px;
 }
 
 textarea{
-height:150px;
+  min-height:130px;
+  resize:vertical;
 }
 
 button{
-width:100%;
-padding:15px;
-margin-top:12px;
-border:0;
-border-radius:12px;
-background:#008cff;
-color:white;
-font-size:17px;
-font-weight:bold;
+  width:100%;
+  border:0;
+  border-radius:10px;
+  padding:14px;
+  margin-top:8px;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  background:#2563eb;
+  color:white;
 }
 
 button:hover{
-opacity:.85;
+  opacity:.9;
 }
 
-canvas{
-display:block;
-width:100%;
-max-width:360px;
-margin:25px auto;
-border-radius:15px;
-background:#000;
+button:disabled{
+  background:#444;
+  cursor:not-allowed;
 }
 
-#download{
-display:none;
-background:#16a34a;
+.preview{
+  width:100%;
+  max-width:360px;
+  aspect-ratio:9/16;
+  margin:15px auto;
+  background:#05070d;
+  border:2px dashed #303754;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
 }
 
-#status{
-text-align:center;
-color:#00e5ff;
-margin-top:15px;
+.preview img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+video{
+  width:100%;
+  max-width:360px;
+  display:block;
+  margin:15px auto;
+  border-radius:12px;
+  background:#000;
+}
+
+.status{
+  text-align:center;
+  color:#aaa;
+  margin-top:12px;
+  min-height:20px;
+}
+
+.small{
+  font-size:13px;
+  color:#888;
+  margin-top:-8px;
+  margin-bottom:15px;
+}
+
+footer{
+  text-align:center;
+  color:#666;
+  padding:25px;
+  font-size:13px;
 }
 </style>
 </head>
@@ -100,362 +148,486 @@ margin-top:15px;
 <body>
 
 <header>
-<h1>🎬 RSAI Shorts Generator</h1>
-<p>Free • 9:16 • TTS</p>
+  <h1>🎬 RSAI Video Generator</h1>
+  <p>Create short AI-style videos for YouTube & Social Media</p>
 </header>
 
 <div class="container">
 
-<div class="card">
+  <div class="card">
 
-<label>📝 Video Script</label>
+    <label>📝 Video Script</label>
 
-<textarea id="text">This is a new RSAI Shorts video! Follow for more amazing videos.</textarea>
+    <textarea id="script"
+      placeholder="Type your video script here..."></textarea>
 
-<label>🎙️ Voice</label>
+    <label>🖼️ Upload Image</label>
 
-<select id="voice"></select>
+    <input
+      type="file"
+      id="imageInput"
+      accept="image/*">
 
-<button onclick="testVoice()">🔊 Test Voice</button>
+    <div class="small">
+      Upload a JPG, PNG or WEBP image for your video.
+    </div>
 
-<button onclick="generate()">🚀 Generate 9:16 Video</button>
+    <div class="preview" id="preview">
+      <span id="previewText">Image Preview</span>
+    </div>
 
-<p id="status"></p>
+    <button id="voiceBtn">
+      🔊 Generate Voice
+    </button>
 
-<canvas id="canvas" width="720" height="1280"></canvas>
+    <button id="videoBtn">
+      🎬 Generate Video
+    </button>
 
-<button id="download">⬇️ Download Video</button>
+    <div class="status" id="status"></div>
+
+  </div>
+
+  <div class="card">
+
+    <h2>🎥 Video Preview</h2>
+
+    <video
+      id="video"
+      controls
+      playsinline>
+    </video>
+
+    <button id="downloadBtn" disabled>
+      ⬇️ Download Video
+    </button>
+
+  </div>
 
 </div>
 
-</div>
+<footer>
+  RSAI Video Generator © 2026
+</footer>
 
 <script>
 
-const voiceBox=document.getElementById("voice");
+let uploadedImage = null;
+let generatedVideoURL = null;
 
-function loadVoices(){
+/* =========================
+   IMAGE UPLOAD
+========================= */
 
-let voices=speechSynthesis.getVoices();
+const imageInput = document.getElementById("imageInput");
+const preview = document.getElementById("preview");
+const previewText = document.getElementById("previewText");
 
-voiceBox.innerHTML="";
+imageInput.addEventListener("change", function(){
 
-voices.forEach((v,i)=>{
+  const file = this.files[0];
 
-let option=document.createElement("option");
+  if(!file){
+    return;
+  }
 
-option.value=i;
+  if(!file.type.startsWith("image/")){
+    alert("Please upload an image file.");
+    return;
+  }
 
-option.textContent=v.name+" - "+v.lang;
+  const reader = new FileReader();
 
-voiceBox.appendChild(option);
+  reader.onload = function(e){
 
-});
+    uploadedImage = new Image();
 
-}
+    uploadedImage.onload = function(){
 
-speechSynthesis.onvoiceschanged=loadVoices;
+      preview.innerHTML = "";
 
-loadVoices();
+      const img = document.createElement("img");
+      img.src = e.target.result;
 
+      preview.appendChild(img);
 
-function testVoice(){
+      setStatus("✅ Image uploaded successfully!");
 
-let text=document.getElementById("text").value;
+    };
 
-speechSynthesis.cancel();
+    uploadedImage.src = e.target.result;
 
-let voices=speechSynthesis.getVoices();
+  };
 
-let index=parseInt(voiceBox.value)||0;
-
-let u=new SpeechSynthesisUtterance(text);
-
-if(voices[index])u.voice=voices[index];
-
-u.rate=1;
-u.pitch=1;
-u.volume=1;
-
-speechSynthesis.speak(u);
-}
-
-
-function generate(){
-
-let text=document.getElementById("text").value.trim();
-
-if(!text){
-
-alert("Enter your script first!");
-
-return;
-}
-
-let canvas=document.getElementById("canvas");
-
-let ctx=canvas.getContext("2d");
-
-let status=document.getElementById("status");
-
-let download=document.getElementById("download");
-
-status.innerText="🎬 Creating Shorts...";
-
-download.style.display="none";
-
-let stream=canvas.captureStream(30);
-
-let recorder=new MediaRecorder(stream);
-
-let chunks=[];
-
-recorder.ondataavailable=e=>{
-
-if(e.data.size>0){
-
-chunks.push(e.data);
-
-}
-
-};
-
-recorder.onstop=()=>{
-
-let blob=new Blob(chunks,{
-type:"video/webm"
-});
-
-let url=URL.createObjectURL(blob);
-
-download.style.display="block";
-
-download.onclick=()=>{
-
-let a=document.createElement("a");
-
-a.href=url;
-
-a.download="RSAI-Shorts.webm";
-
-a.click();
-
-};
-
-status.innerText="✅ Shorts Ready!";
-};
-
-
-let voices=speechSynthesis.getVoices();
-
-let index=parseInt(voiceBox.value)||0;
-
-let voice=new SpeechSynthesisUtterance(text);
-
-if(voices[index])voice.voice=voices[index];
-
-voice.rate=1;
-voice.pitch=1;
-voice.volume=1;
-
-
-recorder.start();
-
-speechSynthesis.cancel();
-
-speechSynthesis.speak(voice);
-
-
-let start=performance.now();
-
-let duration=Math.max(
-5,
-Math.min(15,text.length/12)
-);
-
-
-function frame(now){
-
-let elapsed=(now-start)/1000;
-
-let p=elapsed/duration;
-
-
-// Background
-
-let gradient=ctx.createLinearGradient(
-0,0,720,1280
-);
-
-gradient.addColorStop(
-0,
-"#020617"
-);
-
-gradient.addColorStop(
-.5,
-"#111827"
-);
-
-gradient.addColorStop(
-1,
-"#1e1b4b"
-);
-
-ctx.fillStyle=gradient;
-
-ctx.fillRect(
-0,
-0,
-720,
-1280
-);
-
-
-// Animated circles
-
-let x=360+
-Math.sin(elapsed*2)*220;
-
-let y=350+
-Math.cos(elapsed*1.5)*150;
-
-ctx.fillStyle="#008cff";
-
-ctx.globalAlpha=.25;
-
-ctx.beginPath();
-
-ctx.arc(
-x,
-y,
-170,
-0,
-Math.PI*2
-);
-
-ctx.fill();
-
-ctx.globalAlpha=1;
-
-
-// Main title
-
-ctx.textAlign="center";
-
-ctx.fillStyle="#00e5ff";
-
-ctx.font="bold 30px Arial";
-
-ctx.fillText(
-"RSAI SHORTS",
-360,
-120
-);
-
-
-// Script text
-
-ctx.fillStyle="white";
-
-ctx.font="bold 48px Arial";
-
-let words=text.split(" ");
-
-let lines=[];
-
-let line="";
-
-for(let word of words){
-
-let test=line+word+" ";
-
-if(ctx.measureText(test).width>600){
-
-lines.push(line);
-
-line=word+" ";
-
-}else{
-
-line=test;
-
-}
-
-}
-
-if(line)lines.push(line);
-
-
-let lineHeight=70;
-
-let totalHeight=
-lines.length*lineHeight;
-
-let yStart=
-640-totalHeight/2;
-
-
-lines.forEach((l,i)=>{
-
-ctx.fillText(
-l,
-360,
-yStart+i*lineHeight
-);
+  reader.readAsDataURL(file);
 
 });
 
 
-// Progress bar
+/* =========================
+   STATUS
+========================= */
 
-ctx.fillStyle="#333";
-
-ctx.fillRect(
-80,
-1100,
-560,
-12
-);
-
-ctx.fillStyle="#00e5ff";
-
-ctx.fillRect(
-80,
-1100,
-560*Math.min(p,1),
-12
-);
-
-
-// Footer
-
-ctx.font="bold 26px Arial";
-
-ctx.fillStyle="white";
-
-ctx.fillText(
-"Follow for more 🚀",
-360,
-1170
-);
-
-
-if(elapsed<duration){
-
-requestAnimationFrame(frame);
-
-}else{
-
-recorder.stop();
-
+function setStatus(message){
+  document.getElementById("status").textContent = message;
 }
 
-}
 
-requestAnimationFrame(frame);
+/* =========================
+   TEXT TO SPEECH
+========================= */
 
-}
+const voiceBtn = document.getElementById("voiceBtn");
+
+voiceBtn.addEventListener("click", function(){
+
+  const text = document.getElementById("script").value.trim();
+
+  if(!text){
+    alert("Please enter your script first.");
+    return;
+  }
+
+  if(!("speechSynthesis" in window)){
+    alert("Text-to-Speech is not supported in this browser.");
+    return;
+  }
+
+  speechSynthesis.cancel();
+
+  const speech = new SpeechSynthesisUtterance(text);
+
+  speech.rate = 1;
+  speech.pitch = 1;
+  speech.volume = 1;
+
+  speech.onstart = function(){
+    setStatus("🔊 Voice playing...");
+  };
+
+  speech.onend = function(){
+    setStatus("✅ Voice finished.");
+  };
+
+  speech.onerror = function(){
+    setStatus("❌ Voice error.");
+  };
+
+  speechSynthesis.speak(speech);
+
+});
+
+
+/* =========================
+   VIDEO GENERATOR
+========================= */
+
+const videoBtn = document.getElementById("videoBtn");
+
+videoBtn.addEventListener("click", async function(){
+
+  const script = document.getElementById("script").value.trim();
+
+  if(!script){
+    alert("Please enter a video script.");
+    return;
+  }
+
+  if(!uploadedImage){
+    alert("Please upload an image first.");
+    return;
+  }
+
+  if(!window.MediaRecorder){
+    alert("Your browser does not support video recording.");
+    return;
+  }
+
+  videoBtn.disabled = true;
+
+  setStatus("🎬 Creating video...");
+
+  try{
+
+    const canvas = document.createElement("canvas");
+
+    canvas.width = 720;
+    canvas.height = 1280;
+
+    const ctx = canvas.getContext("2d");
+
+    const stream = canvas.captureStream(30);
+
+    const chunks = [];
+
+    let recorder;
+
+    try{
+      recorder = new MediaRecorder(stream,{
+        mimeType:"video/webm;codecs=vp9"
+      });
+    }catch(e){
+      recorder = new MediaRecorder(stream);
+    }
+
+    recorder.ondataavailable = function(e){
+
+      if(e.data.size > 0){
+        chunks.push(e.data);
+      }
+
+    };
+
+    recorder.onstop = function(){
+
+      const blob = new Blob(chunks,{
+        type:"video/webm"
+      });
+
+      generatedVideoURL = URL.createObjectURL(blob);
+
+      const video = document.getElementById("video");
+
+      video.src = generatedVideoURL;
+
+      document.getElementById("downloadBtn").disabled = false;
+
+      setStatus("✅ Video created successfully!");
+
+      videoBtn.disabled = false;
+
+    };
+
+    recorder.start();
+
+    const duration = 8000;
+
+    const startTime = Date.now();
+
+    function draw(){
+
+      const elapsed = Date.now() - startTime;
+
+      const progress = elapsed / duration;
+
+      ctx.fillStyle = "#000";
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+
+      /* Image */
+
+      const imgRatio =
+        uploadedImage.width / uploadedImage.height;
+
+      const canvasRatio =
+        canvas.width / canvas.height;
+
+      let drawWidth;
+      let drawHeight;
+      let x;
+      let y;
+
+      if(imgRatio > canvasRatio){
+
+        drawHeight = canvas.height;
+        drawWidth = drawHeight * imgRatio;
+
+        x = (canvas.width - drawWidth) / 2;
+        y = 0;
+
+      }else{
+
+        drawWidth = canvas.width;
+        drawHeight = drawWidth / imgRatio;
+
+        x = 0;
+        y = (canvas.height - drawHeight) / 2;
+
+      }
+
+      /* Zoom animation */
+
+      const zoom = 1 + progress * 0.08;
+
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+
+      ctx.save();
+
+      ctx.translate(centerX,centerY);
+      ctx.scale(zoom,zoom);
+      ctx.translate(-centerX,-centerY);
+
+      ctx.drawImage(
+        uploadedImage,
+        x,
+        y,
+        drawWidth,
+        drawHeight
+      );
+
+      ctx.restore();
+
+      /* Dark overlay */
+
+      const gradient =
+        ctx.createLinearGradient(
+          0,
+          0,
+          0,
+          canvas.height
+        );
+
+      gradient.addColorStop(0,"rgba(0,0,0,0.05)");
+      gradient.addColorStop(0.65,"rgba(0,0,0,0.15)");
+      gradient.addColorStop(1,"rgba(0,0,0,0.75)");
+
+      ctx.fillStyle = gradient;
+
+      ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+      /* Script text */
+
+      const words = script.split(/\s+/);
+
+      const maxWords = Math.ceil(
+        words.length * Math.min(progress + 0.15,1)
+      );
+
+      const visibleText =
+        words.slice(0,maxWords).join(" ");
+
+      ctx.fillStyle = "#ffffff";
+
+      ctx.textAlign = "center";
+
+      ctx.font =
+        "bold 42px Arial";
+
+      const maxWidth = 620;
+
+      const lines = [];
+
+      let line = "";
+
+      const textWords =
+        visibleText.split(" ");
+
+      textWords.forEach(word => {
+
+        const test =
+          line + word + " ";
+
+        if(
+          ctx.measureText(test).width
+          > maxWidth
+        ){
+
+          lines.push(line);
+
+          line = word + " ";
+
+        }else{
+
+          line = test;
+
+        }
+
+      });
+
+      if(line){
+        lines.push(line);
+      }
+
+      const lineHeight = 55;
+
+      const startY =
+        canvas.height - 250;
+
+      lines.forEach((text,index)=>{
+
+        ctx.fillStyle =
+          "rgba(0,0,0,0.65)";
+
+        const width =
+          ctx.measureText(text).width + 30;
+
+        ctx.fillRect(
+          centerX - width/2,
+          startY + index*lineHeight - 40,
+          width,
+          58
+        );
+
+        ctx.fillStyle = "#ffffff";
+
+        ctx.fillText(
+          text,
+          centerX,
+          startY + index*lineHeight
+        );
+
+      });
+
+      if(elapsed < duration){
+
+        requestAnimationFrame(draw);
+
+      }else{
+
+        recorder.stop();
+
+      }
+
+    }
+
+    draw();
+
+  }catch(error){
+
+    console.error(error);
+
+    setStatus("❌ Video generation failed.");
+
+    videoBtn.disabled = false;
+
+  }
+
+});
+
+
+/* =========================
+   DOWNLOAD
+========================= */
+
+const downloadBtn =
+  document.getElementById("downloadBtn");
+
+downloadBtn.addEventListener("click",function(){
+
+  if(!generatedVideoURL){
+    return;
+  }
+
+  const a =
+    document.createElement("a");
+
+  a.href = generatedVideoURL;
+
+  a.download =
+    "RSAI_Video.webm";
+
+  document.body.appendChild(a);
+
+  a.click();
+
+  document.body.removeChild(a);
+
+});
 
 </script>
 
