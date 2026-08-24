@@ -4,881 +4,322 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>RSAI ChatBot</title>
+<title>Cudu AI</title>
 
 <style>
 *{
   box-sizing:border-box;
+  margin:0;
+  padding:0;
 }
 
 body{
-  margin:0;
   font-family:Arial,sans-serif;
-  background:#070b16;
-  color:#fff;
+  background:#070b14;
+  color:white;
   height:100vh;
   overflow:hidden;
 }
 
-.app{
-  height:100vh;
-  max-width:900px;
-  margin:auto;
-  display:flex;
-  flex-direction:column;
-  background:#0b1020;
-}
-
-/* HEADER */
-
-.header{
-  height:70px;
+header{
+  height:65px;
   display:flex;
   align-items:center;
   justify-content:space-between;
   padding:0 18px;
-  background:#11182b;
-  border-bottom:1px solid #27304b;
+  background:#0d1322;
+  border-bottom:1px solid #202a3d;
 }
 
 .logo{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-
-.logoIcon{
-  width:43px;
-  height:43px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#2563eb;
   font-size:23px;
+  font-weight:bold;
 }
 
-.logo h1{
-  margin:0;
-  font-size:20px;
+.logo span{
+  color:#5b8cff;
 }
 
-.online{
-  font-size:12px;
-  color:#4ade80;
-  margin-top:3px;
-}
-
-.header button{
-  background:#1a233b;
-  color:#fff;
-  border:1px solid #303a58;
-  border-radius:8px;
-  padding:9px 12px;
+.new-chat{
+  border:0;
+  background:#5b8cff;
+  color:white;
+  padding:10px 15px;
+  border-radius:10px;
   cursor:pointer;
+  font-weight:bold;
 }
-
-/* CHAT */
 
 .chat{
-  flex:1;
+  height:calc(100vh - 135px);
   overflow-y:auto;
-  padding:20px 15px 110px;
-  scroll-behavior:smooth;
+  padding:20px 15px 30px;
 }
 
 .welcome{
   text-align:center;
-  margin:40px auto;
-  max-width:550px;
+  margin-top:18vh;
 }
 
-.robot{
-  font-size:60px;
-}
-
-.welcome h2{
-  margin:10px 0;
+.welcome h1{
+  font-size:34px;
+  margin-bottom:10px;
 }
 
 .welcome p{
-  color:#929ab0;
-  line-height:1.5;
+  color:#9ca8bd;
 }
-
-/* MESSAGE */
 
 .message{
+  max-width:850px;
+  margin:14px auto;
   display:flex;
-  margin:14px 0;
-  gap:10px;
 }
 
-.message.user{
+.user{
   justify-content:flex-end;
 }
 
-.avatar{
-  min-width:38px;
-  height:38px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#1d4ed8;
-}
-
-.user .avatar{
-  background:#374151;
-  order:2;
+.bot{
+  justify-content:flex-start;
 }
 
 .bubble{
-  max-width:75%;
-  padding:12px 15px;
-  border-radius:15px;
-  background:#172039;
+  max-width:80%;
+  padding:13px 16px;
+  border-radius:16px;
   line-height:1.5;
   white-space:pre-wrap;
-  word-wrap:break-word;
 }
 
 .user .bubble{
-  background:#2563eb;
+  background:#315edb;
   border-bottom-right-radius:4px;
 }
 
 .bot .bubble{
+  background:#151d2d;
+  border:1px solid #26324a;
   border-bottom-left-radius:4px;
 }
 
-/* QUICK BUTTONS */
-
-.quick{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  justify-content:center;
-  margin:20px auto;
-  max-width:650px;
-}
-
-.quick button{
-  border:1px solid #303b5c;
-  background:#111a30;
-  color:#dbe4ff;
-  padding:10px 13px;
-  border-radius:20px;
-  cursor:pointer;
-}
-
-.quick button:hover{
-  background:#1d4ed8;
-}
-
-/* TYPING */
-
 .typing{
-  display:none;
-  margin:10px 0;
+  color:#9ca8bd;
+  font-style:italic;
 }
 
-.typingBubble{
-  display:inline-flex;
-  gap:5px;
-  padding:13px 16px;
-  background:#172039;
-  border-radius:15px;
-}
-
-.dot{
-  width:7px;
-  height:7px;
-  border-radius:50%;
-  background:#9ca3af;
-  animation:bounce 1s infinite;
-}
-
-.dot:nth-child(2){
-  animation-delay:.15s;
-}
-
-.dot:nth-child(3){
-  animation-delay:.3s;
-}
-
-@keyframes bounce{
-  0%,60%,100%{
-    transform:translateY(0);
-  }
-  30%{
-    transform:translateY(-5px);
-  }
-}
-
-/* INPUT */
-
-.inputArea{
+.input-area{
   position:fixed;
   bottom:0;
-  left:50%;
-  transform:translateX(-50%);
-  width:100%;
-  max-width:900px;
+  left:0;
+  right:0;
+  background:#0d1322;
+  border-top:1px solid #202a3d;
   padding:12px;
-  background:#0b1020;
-  border-top:1px solid #27304b;
 }
 
-.inputBox{
+.input-box{
+  max-width:850px;
+  margin:auto;
   display:flex;
-  align-items:center;
   gap:8px;
-  background:#11182b;
-  border:1px solid #303a58;
-  border-radius:15px;
+  background:#151d2d;
+  border:1px solid #2a3852;
+  border-radius:14px;
   padding:7px;
 }
 
-.inputBox textarea{
+textarea{
   flex:1;
   resize:none;
-  height:42px;
-  max-height:120px;
   border:0;
   outline:0;
   background:transparent;
-  color:#fff;
-  font-size:15px;
-  padding:11px 8px;
-  font-family:Arial,sans-serif;
+  color:white;
+  padding:10px;
+  font-size:16px;
+  height:45px;
 }
 
-.iconBtn{
-  width:42px;
-  height:42px;
+textarea::placeholder{
+  color:#77849b;
+}
+
+.send{
+  width:45px;
   border:0;
   border-radius:10px;
-  background:#1a233b;
-  color:#fff;
-  font-size:18px;
+  background:#5b8cff;
+  color:white;
+  font-size:20px;
   cursor:pointer;
 }
 
-.sendBtn{
-  width:48px;
-  height:42px;
-  border:0;
-  border-radius:10px;
-  background:#2563eb;
-  color:#fff;
-  font-size:18px;
-  cursor:pointer;
-}
-
-.sendBtn:hover,
-.iconBtn:hover{
+.send:hover,
+.new-chat:hover{
   opacity:.85;
 }
 
-/* MOBILE */
-
 @media(max-width:600px){
+  .welcome h1{
+    font-size:28px;
+  }
 
-.header{
-  height:62px;
-}
-
-.logoIcon{
-  width:38px;
-  height:38px;
-}
-
-.logo h1{
-  font-size:18px;
-}
-
-.chat{
-  padding-left:10px;
-  padding-right:10px;
-}
-
-.bubble{
-  max-width:82%;
-}
-
-.quick{
-  margin-top:10px;
-}
-
+  .bubble{
+    max-width:88%;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<div class="app">
+<header>
+  <div class="logo">🤖 <span>Cudu</span> AI</div>
+  <button class="new-chat" onclick="newChat()">＋ New Chat</button>
+</header>
 
-<!-- HEADER -->
-
-<div class="header">
-
-  <div class="logo">
-
-    <div class="logoIcon">
-      🤖
-    </div>
-
-    <div>
-      <h1>RSAI ChatBot</h1>
-      <div class="online">
-        ● Online
-      </div>
-    </div>
-
-  </div>
-
-  <button onclick="clearChat()">
-    🗑️ Clear
-  </button>
-
-</div>
-
-
-<!-- CHAT -->
-
-<div class="chat" id="chat">
+<main class="chat" id="chat">
 
   <div class="welcome" id="welcome">
-
-    <div class="robot">
-      🤖
-    </div>
-
-    <h2>Hello! I'm RSAI 👋</h2>
-
-    <p>
-      I'm your smart AI-style assistant.
-      Ask me anything or choose a question below.
-    </p>
-
-    <div class="quick">
-
-      <button onclick="quickAsk('Who are you?')">
-        🤖 Who are you?
-      </button>
-
-      <button onclick="quickAsk('Tell me about YouTube')">
-        ▶️ YouTube
-      </button>
-
-      <button onclick="quickAsk('Give me a cricket idea')">
-        🏏 Cricket Idea
-      </button>
-
-      <button onclick="quickAsk('Give me a video idea')">
-        🎬 Video Idea
-      </button>
-
-      <button onclick="quickAsk('Write a YouTube title')">
-        ✍️ YouTube Title
-      </button>
-
-    </div>
-
+    <h1>🤖 Welcome to Cudu AI</h1>
+    <p>Ask me anything...</p>
   </div>
 
+</main>
 
-  <!-- TYPING -->
-
-  <div class="typing" id="typing">
-
-    <div class="avatar">
-      🤖
-    </div>
-
-    <div class="typingBubble">
-
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
-
-    </div>
-
-  </div>
-
-</div>
-
-
-<!-- INPUT -->
-
-<div class="inputArea">
-
-  <div class="inputBox">
-
-    <button
-      class="iconBtn"
-      onclick="startVoice()"
-      title="Voice">
-      🎤
-    </button>
+<div class="input-area">
+  <div class="input-box">
 
     <textarea
-      id="input"
-      placeholder="Message RSAI..."
-      onkeydown="handleKey(event)"></textarea>
+      id="message"
+      placeholder="Message Cudu AI..."
+      onkeydown="handleKey(event)"
+    ></textarea>
 
-    <button
-      class="sendBtn"
-      onclick="sendMessage()">
-      ➤
-    </button>
+    <button class="send" onclick="sendMessage()">➤</button>
 
   </div>
-
 </div>
-
-</div>
-
 
 <script>
 
-/* =========================
-   ELEMENTS
-========================= */
+const chat = document.getElementById("chat");
+const input = document.getElementById("message");
+const welcome = document.getElementById("welcome");
 
-const chat =
-document.getElementById("chat");
+function addMessage(text,type){
 
-const input =
-document.getElementById("input");
+  if(welcome){
+    welcome.style.display="none";
+  }
 
-const typing =
-document.getElementById("typing");
+  const message = document.createElement("div");
+  message.className = "message " + type;
 
-const welcome =
-document.getElementById("welcome");
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.textContent = text;
 
+  message.appendChild(bubble);
+  chat.appendChild(message);
 
-/* =========================
-   SEND
-========================= */
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function botReply(text){
+
+  const lower = text.toLowerCase();
+
+  if(lower.includes("hello") ||
+     lower.includes("hi") ||
+     lower.includes("hey")){
+
+    return "Hello! 👋 I'm Cudu AI. How can I help you today?";
+  }
+
+  if(lower.includes("who are you")){
+
+    return "I'm Cudu AI 🤖, your simple AI assistant.";
+  }
+
+  if(lower.includes("youtube")){
+
+    return "I can help you with YouTube titles, descriptions, thumbnails, scripts and video ideas. 🎬";
+  }
+
+  if(lower.includes("cricket")){
+
+    return "🏏 I can help you create cricket video titles, descriptions, thumbnail text and highlight ideas.";
+  }
+
+  if(lower.includes("help")){
+
+    return "Sure! 🤝 Ask me something and I'll try to help.";
+  }
+
+  return "I received your message: \"" + text + "\"\n\nCudu AI is ready! 🤖";
+}
 
 function sendMessage(){
 
-  const text =
-    input.value.trim();
+  const text = input.value.trim();
 
-  if(!text){
-    return;
-  }
+  if(!text) return;
 
-  welcome.style.display="none";
-
-  addMessage(
-    text,
-    "user"
-  );
+  addMessage(text,"user");
 
   input.value="";
 
-  showTyping();
+  const typing = document.createElement("div");
+  typing.className="message bot";
+  typing.id="typing";
 
-  setTimeout(function(){
+  const bubble=document.createElement("div");
+  bubble.className="bubble typing";
+  bubble.textContent="Cudu AI is typing...";
 
-    hideTyping();
+  typing.appendChild(bubble);
+  chat.appendChild(typing);
 
-    const reply =
-      generateReply(text);
+  chat.scrollTop=chat.scrollHeight;
 
-    addMessage(
-      reply,
-      "bot"
-    );
+  setTimeout(()=>{
 
-    speak(reply);
+    typing.remove();
+
+    addMessage(botReply(text),"bot");
 
   },700);
-
 }
-
-
-/* =========================
-   QUICK ASK
-========================= */
-
-function quickAsk(text){
-
-  input.value=text;
-
-  sendMessage();
-
-}
-
-
-/* =========================
-   ADD MESSAGE
-========================= */
-
-function addMessage(
-  text,
-  type
-){
-
-  const message =
-    document.createElement("div");
-
-  message.className=
-    "message "+type;
-
-  const avatar =
-    document.createElement("div");
-
-  avatar.className="avatar";
-
-  avatar.textContent=
-    type==="bot" ? "🤖" : "👤";
-
-  const bubble =
-    document.createElement("div");
-
-  bubble.className="bubble";
-
-  bubble.textContent=text;
-
-  message.appendChild(avatar);
-
-  message.appendChild(bubble);
-
-  chat.insertBefore(
-    message,
-    typing
-  );
-
-  scrollBottom();
-
-}
-
-
-/* =========================
-   TYPING
-========================= */
-
-function showTyping(){
-
-  typing.style.display="flex";
-
-  scrollBottom();
-
-}
-
-function hideTyping(){
-
-  typing.style.display="none";
-
-}
-
-
-/* =========================
-   SCROLL
-========================= */
-
-function scrollBottom(){
-
-  setTimeout(function(){
-
-    chat.scrollTop=
-      chat.scrollHeight;
-
-  },50);
-
-}
-
-
-/* =========================
-   CHAT BRAIN
-========================= */
-
-function generateReply(message){
-
-  const text=
-    message.toLowerCase().trim();
-
-
-  /* GREETING */
-
-  if(
-    text.includes("hello") ||
-    text.includes("hi") ||
-    text.includes("hey") ||
-    text.includes("හලෝ") ||
-    text.includes("හෙලෝ")
-  ){
-
-    return "Hello! 👋 I'm RSAI.\n\nHow can I help you today? 🤖";
-
-  }
-
-
-  /* WHO */
-
-  if(
-    text.includes("who are you") ||
-    text.includes("what are you") ||
-    text.includes("කවුද")
-  ){
-
-    return "I'm RSAI 🤖 — a smart AI-style chatbot created for your website.\n\nI can help with ideas, YouTube content, cricket content, scripts and general questions.";
-
-  }
-
-
-  /* YOUTUBE */
-
-  if(
-    text.includes("youtube") ||
-    text.includes("යූටියුබ්")
-  ){
-
-    return "YouTube tip 🎯\n\nUse a strong thumbnail + short title + interesting first 5 seconds.\n\nExample title:\n🔥 UNBELIEVABLE CRICKET MOMENT! 😱";
-
-  }
-
-
-  /* CRICKET */
-
-  if(
-    text.includes("cricket") ||
-    text.includes("ක්‍රිකට්")
-  ){
-
-    return "🏏 Cricket video idea:\n\n\"Last Over Thriller 😱\"\n\nThumbnail text:\nLAST OVER CHAOS!\n\nShow the batsman, bowler and scoreboard with a dramatic background.";
-
-  }
-
-
-  /* VIDEO */
-
-  if(
-    text.includes("video") ||
-    text.includes("reel") ||
-    text.includes("short")
-  ){
-
-    return "🎬 Short video formula:\n\n0–2 sec → Hook\n2–6 sec → Main action\n6–9 sec → Surprise\n9–10 sec → Call to action\n\nKeep the first scene exciting! 🔥";
-
-  }
-
-
-  /* TITLE */
-
-  if(
-    text.includes("title")
-  ){
-
-    return "Here are 5 YouTube title ideas:\n\n1. 🔥 UNBELIEVABLE MOMENT!\n2. 😱 What Just Happened?!\n3. 🚨 CRAZY LAST OVER!\n4. 💥 He Destroyed The Bowling!\n5. 🏏 THIS WAS INSANE!";
-
-  }
-
-
-  /* THUMBNAIL */
-
-  if(
-    text.includes("thumbnail") ||
-    text.includes("thumb")
-  ){
-
-    return "🎨 Thumbnail formula:\n\n• Big player face\n• Strong action pose\n• 2–5 words maximum\n• High contrast\n• Ball/stumps visible\n• Big emotional expression\n\nExample:\n\"GONE FOR 50! 😱\"";
-
-  }
-
-
-  /* AI */
-
-  if(
-    text.includes("ai") ||
-    text.includes("artificial intelligence")
-  ){
-
-    return "🤖 AI means Artificial Intelligence.\n\nIt allows computers to perform tasks such as understanding text, generating images, recognizing speech and creating content.";
-
-  }
-
-
-  /* THANKS */
-
-  if(
-    text.includes("thank") ||
-    text.includes("thanks") ||
-    text.includes("ස්තුතියි")
-  ){
-
-    return "You're welcome! 😎🔥\n\nI'm always ready to help.";
-
-  }
-
-
-  /* BYE */
-
-  if(
-    text==="bye" ||
-    text.includes("good night")
-  ){
-
-    return "Bye! 👋🔥 See you next time.";
-
-  }
-
-
-  /* DEFAULT */
-
-  return "Interesting question! 🤔\n\nI'm still learning, but I can help you with:\n\n🏏 Cricket\n🎬 YouTube videos\n🎨 Thumbnails\n✍️ Scripts\n🤖 AI ideas\n💡 Content ideas\n\nTry asking me one of these!";
-
-}
-
-
-/* =========================
-   BOT VOICE
-========================= */
-
-function speak(text){
-
-  if(
-    !("speechSynthesis" in window)
-  ){
-    return;
-  }
-
-  speechSynthesis.cancel();
-
-  const clean=
-    text
-    .replace(/[🔥🏏🎬🎨✍️🤖💡😎👋😱🚨💥]/g,"");
-
-  const voice=
-    new SpeechSynthesisUtterance(clean);
-
-  voice.rate=.95;
-  voice.pitch=1;
-  voice.volume=1;
-
-  speechSynthesis.speak(voice);
-
-}
-
-
-/* =========================
-   VOICE INPUT
-========================= */
-
-function startVoice(){
-
-  const SpeechRecognition =
-    window.SpeechRecognition ||
-    window.webkitSpeechRecognition;
-
-  if(!SpeechRecognition){
-
-    alert(
-      "Voice input is not supported in this browser. Try Chrome."
-    );
-
-    return;
-
-  }
-
-  const recognition =
-    new SpeechRecognition();
-
-  recognition.lang="en-US";
-
-  recognition.interimResults=false;
-
-  recognition.maxAlternatives=1;
-
-  recognition.start();
-
-  recognition.onstart=function(){
-
-    input.placeholder=
-      "🎤 Listening...";
-
-  };
-
-  recognition.onresult=function(event){
-
-    input.value=
-      event.results[0][0].transcript;
-
-    input.placeholder=
-      "Message RSAI...";
-
-    sendMessage();
-
-  };
-
-  recognition.onerror=function(){
-
-    input.placeholder=
-      "Message RSAI...";
-
-  };
-
-  recognition.onend=function(){
-
-    input.placeholder=
-      "Message RSAI...";
-
-  };
-
-}
-
-
-/* =========================
-   ENTER KEY
-========================= */
 
 function handleKey(event){
 
-  if(
-    event.key==="Enter" &&
-    !event.shiftKey
-  ){
+  if(event.key==="Enter" && !event.shiftKey){
 
     event.preventDefault();
-
     sendMessage();
 
   }
-
 }
 
+function newChat(){
 
-/* =========================
-   CLEAR CHAT
-========================= */
+  chat.innerHTML="";
 
-function clearChat(){
+  const newWelcome=document.createElement("div");
 
-  const messages =
-    document.querySelectorAll(
-      ".message"
-    );
+  newWelcome.className="welcome";
 
-  messages.forEach(
-    message=>message.remove()
-  );
+  newWelcome.innerHTML=`
+    <h1>🤖 Welcome to Cudu AI</h1>
+    <p>Ask me anything...</p>
+  `;
 
-  welcome.style.display="block";
+  chat.appendChild(newWelcome);
 
-  speechSynthesis.cancel();
-
+  input.focus();
 }
-
-
-/* =========================
-   START
-========================= */
 
 input.focus();
 
